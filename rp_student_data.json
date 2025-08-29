@@ -1,0 +1,59 @@
+[
+  {
+    "id": 1756504425.336317,
+    "timestamp": "2025-08-30T00:53:45.336328",
+    "examinationBoard": "RTB",
+    "yearCompleted": 2022,
+    "rpAdmissionYear": 2025,
+    "combination": "EET",
+    "department": "Creative Arts & Media",
+    "course": "Film Making and TV Production",
+    "yearStudy": "Year 1",
+    "marks": {
+      "Electrical Circuits": 89,
+      "Electronics": 89,
+      "Power Systems": 9,
+      "Control Systems": 89,
+      "Renewable Energy Systems": 89,
+      "Electrical Machines": 8,
+      "Electrical Installation": 89,
+      "Industrial Automation": 98
+    }
+  },
+  {
+    "id": 1756504558.848719,
+    "timestamp": "2025-08-30T00:55:58.848726",
+    "examinationBoard": "REB",
+    "yearCompleted": 2025,
+    "rpAdmissionYear": 2025,
+    "combination": "PCB",
+    "department": "Construction & Infrastructure",
+    "course": "Geomatics Engineering",
+    "yearStudy": "Year 1",
+    "marks": {
+      "Physics": 70,
+      "Chemistry": 70,
+      "Biology": 90,
+      "Entrepreneurship": 80,
+      "General Studies": 90
+    }
+  },
+  {
+    "id": 1756504643.352383,
+    "timestamp": "2025-08-30T00:57:23.352390",
+    "examinationBoard": "REB",
+    "yearCompleted": 2022,
+    "rpAdmissionYear": 2025,
+    "combination": "MCB",
+    "department": "Mining & Natural Resources",
+    "course": "Forest Resources Management",
+    "yearStudy": "Year 1",
+    "marks": {
+      "Mathematics": 80,
+      "Chemistry": 60,
+      "Biology": 90,
+      "Entrepreneurship": 80,
+      "General Studies": 5
+    }
+  }
+]
