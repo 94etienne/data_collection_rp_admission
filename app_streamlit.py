@@ -382,37 +382,67 @@ elif st.session_state.form_step == 2:
 elif st.session_state.form_step == 3:
     st.info(f"Board: **{st.session_state.current_board}** | Year: **{st.session_state.year_completed}** | Combination: **{st.session_state.selected_combination}**")
     
-    st.subheader("Enter Marks for Each Subject (0-100)")
+    st.subheader("Enter Marks for Each Subject (1-100)")
     combinations = rtb_combinations if st.session_state.current_board == "RTB" else reb_combinations
     subjects = combinations[st.session_state.selected_combination]
     
     # Initialize marks if not exists
     if not st.session_state.subject_marks:
-        st.session_state.subject_marks = {subject: 0 for subject in subjects}
+        st.session_state.subject_marks = {subject: "" for subject in subjects}
     
     # Create input fields in columns
     cols = st.columns(2)
     all_marks_entered = True
+    invalid_marks = False
     
     for i, subject in enumerate(subjects):
         with cols[i % 2]:
-            mark = st.number_input(
+            # Use text input with validation instead of number input
+            mark = st.text_input(
                 subject,
-                min_value=0,
-                max_value=100,
-                value=st.session_state.subject_marks.get(subject, 0),
-                key=f"mark_{subject}_{st.session_state.form_step}"
+                value=str(st.session_state.subject_marks.get(subject, "")),
+                key=f"mark_{subject}_{st.session_state.form_step}",
+                help="Enter a number between 1 and 100"
             )
+            
+            # Validate input
+            if mark:
+                # Allow only digits
+                if not mark.isdigit():
+                    st.error("Please enter numbers only (0-9)")
+                    invalid_marks = True
+                    # Remove non-digit characters
+                    mark = ''.join(filter(str.isdigit, mark))
+                else:
+                    # Convert to integer and validate range
+                    try:
+                        mark_int = int(mark)
+                        if mark_int < 1 or mark_int > 100:
+                            st.error("Mark must be between 1 and 100")
+                            invalid_marks = True
+                        else:
+                            # Format back to string to remove leading zeros
+                            mark = str(mark_int)
+                    except ValueError:
+                        st.error("Please enter a valid number")
+                        invalid_marks = True
+            
             st.session_state.subject_marks[subject] = mark
-            if mark == 0:
+            
+            if not mark:
                 all_marks_entered = False
     
-    if all_marks_entered and all(mark > 0 for mark in st.session_state.subject_marks.values()):
+    if all_marks_entered and not invalid_marks and all(mark.isdigit() and 1 <= int(mark) <= 100 for mark in st.session_state.subject_marks.values()):
         if st.button("Next Step", type="primary"):
+            # Convert all marks to integers for storage
+            st.session_state.subject_marks = {subject: int(mark) for subject, mark in st.session_state.subject_marks.items()}
             st.session_state.form_step = 4
             st.rerun()
     else:
-        st.warning("Please enter marks for all subjects (must be greater than 0)")
+        if not all_marks_entered:
+            st.warning("Please enter marks for all subjects")
+        elif invalid_marks:
+            st.error("Please correct the invalid marks (must be numbers between 1 and 100)")
 
 # Step 5: RP Admission Year
 elif st.session_state.form_step == 4:
@@ -498,9 +528,19 @@ elif st.session_state.form_step == 7:
             
             st.write("**Subject Marks:**")
             for subject, mark in st.session_state.subject_marks.items():
-                st.write(f"- {subject}: {mark}")
+                # Ensure mark is displayed as integer (in case it's stored as string)
+                display_mark = int(mark) if isinstance(mark, str) and mark.isdigit() else mark
+                st.write(f"- {subject}: {display_mark}")
         
         if st.button("Submit Student Data", type="primary"):
+            # Ensure marks are stored as integers
+            marks_as_ints = {}
+            for subject, mark in st.session_state.subject_marks.items():
+                if isinstance(mark, str) and mark.isdigit():
+                    marks_as_ints[subject] = int(mark)
+                else:
+                    marks_as_ints[subject] = mark
+            
             # Create data record
             form_data = {
                 "id": datetime.now().timestamp(),
@@ -512,7 +552,7 @@ elif st.session_state.form_step == 7:
                 "department": st.session_state.department,
                 "course": st.session_state.course,
                 "yearStudy": st.session_state.year_study,
-                "marks": st.session_state.subject_marks
+                "marks": marks_as_ints  # Use the converted integer marks
             }
             
             # Save data
@@ -533,7 +573,7 @@ elif st.session_state.form_step == 8:
             <h1>🎉 Congratulations!</h1>
             <h2>Student data submitted successfully!</h2>
             <p style="font-size: 1.2em; margin-top: 20px;">
-                Your data has been saved to JSON and CSV files and is now part of our research database.
+                Your data has been saved confidentially and is now part of our research database.
             </p>
         </div>
     """, unsafe_allow_html=True)
