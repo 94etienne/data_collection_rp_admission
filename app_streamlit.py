@@ -298,8 +298,8 @@ if st.session_state.form_step == 0:
     with col1:
         st.markdown("""
             <div style="text-align: center; padding: 20px; border: 2px solid #e1e5e9; border-radius: 10px; margin-bottom: 10px;">
-                <h3>RTB</h3>
-                <p>Rwanda Training Board</p>
+                <h3>RTB (TSS)</h3>
+                <p>Rwanda TVET Board</p>
                 <p><small>(Technical & Vocational)</small></p>
             </div>
         """, unsafe_allow_html=True)
