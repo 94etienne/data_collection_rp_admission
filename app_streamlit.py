@@ -382,7 +382,7 @@ elif st.session_state.form_step == 2:
 elif st.session_state.form_step == 3:
     st.info(f"Board: **{st.session_state.current_board}** | Year: **{st.session_state.year_completed}** | Combination: **{st.session_state.selected_combination}**")
     
-    st.subheader("Enter Marks for Each Subject (1-100)")
+    st.subheader("Enter Marks Obtained in National Examination for Each Subject (1-100)")
     combinations = rtb_combinations if st.session_state.current_board == "RTB" else reb_combinations
     subjects = combinations[st.session_state.selected_combination]
     
