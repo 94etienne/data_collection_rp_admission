@@ -340,6 +340,8 @@ def init_session_state():
         st.session_state.year_study = None
     if 'confirm_delete' not in st.session_state:
         st.session_state.confirm_delete = False
+    if 'show_data' not in st.session_state:
+        st.session_state.show_data = False
 
 # File paths
 JSON_FILE = "rp_student_data.json"
@@ -401,6 +403,7 @@ def reset_form():
     st.session_state.course = None
     st.session_state.year_study = None
     st.session_state.confirm_delete = False
+    st.session_state.show_data = False
 
 def main():
     # Initialize session state
@@ -822,7 +825,7 @@ def main():
                 for subject, mark in st.session_state.subject_marks.items():
                     st.write(f"- {subject}: {mark}")
             
-            if st.button("Submit Student Data", type="primary"):
+            if st.button("Submit", type="primary"):
                 # Create data record
                 form_data = {
                     "id": datetime.now().timestamp(),
@@ -869,39 +872,10 @@ def main():
         with col1:
             st.metric("Students Recorded", len(existing_data))
         
-        # Download buttons
-        st.subheader("Download Data")
-        
-        download_col1, download_col2 = st.columns(2)
-        
-        with download_col1:
-            if os.path.exists(JSON_FILE):
-                with open(JSON_FILE, "r") as f:
-                    st.download_button(
-                        label="Download JSON",
-                        data=f.read(),
-                        file_name=f"rp_student_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
-                        mime="application/json",
-                        use_container_width=True,
-                        disabled=True
-                    )
-
-        with download_col2:
-            if os.path.exists(CSV_FILE):
-                with open(CSV_FILE, "r") as f:
-                    st.download_button(
-                        label="Download CSV",
-                        data=f.read(),
-                        file_name=f"rp_student_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                        mime="text/csv",
-                        use_container_width=True,
-                        disabled=True
-                    )
-        
         # Additional options
         st.markdown("---")
         
-        action_col1, action_col2, action_col3 = st.columns(3)
+        action_col1, action_col2 = st.columns(2)
         
         with action_col1:
             if st.button("Add Another Student", type="primary", use_container_width=True):
@@ -910,7 +884,75 @@ def main():
         
         with action_col2:
             if st.button("View All Data", use_container_width=True, disabled=True):
-                # Show data table
+                st.session_state.show_data = True
+                st.rerun()
+
+    # Show initial summary only if no form is in progress
+    if st.session_state.form_step == 0 or st.session_state.show_data:
+        st.markdown("---")
+        st.subheader("Data Management")
+        
+        # Load and display data count
+        existing_data = load_existing_data()
+        
+        if existing_data:
+            st.metric("Total Students Recorded", len(existing_data))
+            
+            # Download buttons and Clear Data button
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                if os.path.exists(JSON_FILE):
+                    with open(JSON_FILE, "r") as f:
+                        json_data = f.read()
+                    st.download_button(
+                        label="Download JSON",
+                        data=json_data,
+                        file_name=f"rp_student_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                        mime="application/json",
+                        use_container_width=True,
+                        disabled=True
+                    )
+                else:
+                    st.button("Download JSON", disabled=True, use_container_width=True)
+            
+            with col2:
+                if os.path.exists(CSV_FILE):
+                    with open(CSV_FILE, "r") as f:
+                        csv_data = f.read()
+                    st.download_button(
+                        label="Download CSV",
+                        data=csv_data,
+                        file_name=f"rp_student_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                        mime="text/csv",
+                        use_container_width=True,
+                        disabled=True
+                    )
+                else:
+                    st.button("Download CSV", disabled=True, use_container_width=True)
+            
+            with col3:
+                if st.session_state.get('confirm_delete', False):
+                    if st.button("Confirm Delete All Data", type="secondary", use_container_width=True):
+                        try:
+                            if os.path.exists(JSON_FILE):
+                                os.remove(JSON_FILE)
+                            if os.path.exists(CSV_FILE):
+                                os.remove(CSV_FILE)
+                            st.success("All data has been cleared!")
+                            st.session_state.confirm_delete = False
+                            st.session_state.show_data = False
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Error clearing data: {e}")
+                else:
+                    if st.button("Clear All Data", type="secondary", use_container_width=True, disabled=True):
+                        st.session_state.confirm_delete = True
+                        st.warning("Click again to confirm deletion of all data")
+                        st.rerun()
+            
+            # Show data table if View All Data was clicked
+            if st.session_state.show_data:
                 st.subheader("All Recorded Data")
                 df = pd.DataFrame(existing_data)
                 
@@ -924,24 +966,12 @@ def main():
                     df_display = df
                 
                 st.dataframe(df_display, use_container_width=True)
-
-        with action_col3:
-            if st.button("Clear All Data", use_container_width=True, disabled=False):
-                if st.session_state.get('confirm_delete', False):
-                    try:
-                        if os.path.exists(JSON_FILE):
-                            os.remove(JSON_FILE)
-                        if os.path.exists(CSV_FILE):
-                            os.remove(CSV_FILE)
-                        st.success("All data has been cleared!")
-                        st.session_state.confirm_delete = False
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Error clearing data: {e}")
-                else:
-                    st.session_state.confirm_delete = True
-                    st.warning("Click again to confirm deletion of all data")
+                
+                if st.button("Close Data View", use_container_width=True):
+                    st.session_state.show_data = False
                     st.rerun()
+        else:
+            st.info("No data has been collected yet. Start by entering your student registration number above.")
 
     # Navigation buttons
     if st.session_state.form_step > 0 and st.session_state.form_step < 10:
@@ -960,34 +990,6 @@ def main():
                     st.rerun()
                 else:
                     st.warning("Click 'Confirm Reset' to reset the form")
-
-    # Show initial summary only if no form is in progress
-    if st.session_state.form_step == 0:
-        st.markdown("---")
-        st.subheader("Data Collection Overview")
-        
-        # Load and display data count
-        existing_data = load_existing_data()
-        
-        if existing_data:
-            st.metric("Total Students Recorded", len(existing_data))
-            
-            if st.button("View Existing Data", disabled=True):
-                df = pd.DataFrame(existing_data)
-                
-                # Flatten marks for display
-                if not df.empty and 'marks' in df.columns:
-                    marks_df = pd.json_normalize(df['marks'])
-                    marks_df.columns = [f'mark_{col}' for col in marks_df.columns]
-                    df_display = df.drop('marks', axis=1).reset_index(drop=True)
-                    df_display = pd.concat([df_display, marks_df], axis=1)
-                else:
-                    df_display = df
-                
-                st.dataframe(df_display.head(5), use_container_width=True)
-                st.caption("Showing first 5 records. Complete the form to access full data management.")
-        else:
-            st.info("No data has been collected yet. Start by entering your student registration number above.")
 
 if __name__ == "__main__":
     main()
