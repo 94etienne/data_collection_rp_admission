@@ -644,7 +644,7 @@ elif st.session_state.form_step == 8:
             st.dataframe(df_display, use_container_width=True)
 
     with action_col3:
-        if st.button("🗑️ Clear All Data", use_container_width=True,disabled=True):
+        if st.button("🗑️ Clear All Data", use_container_width=True):
             if st.session_state.get('confirm_delete', False):
                 if os.path.exists(JSON_FILE):
                     os.remove(JSON_FILE)
