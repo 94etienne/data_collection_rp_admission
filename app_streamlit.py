@@ -895,7 +895,7 @@ def main():
                         file_name=f"rp_student_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                         mime="text/csv",
                         use_container_width=True,
-                        disabled=False
+                        disabled=True
                     )
         
         # Additional options
@@ -926,7 +926,7 @@ def main():
                 st.dataframe(df_display, use_container_width=True)
 
         with action_col3:
-            if st.button("Clear All Data", use_container_width=True, disabled=True):
+            if st.button("Clear All Data", use_container_width=True, disabled=False):
                 if st.session_state.get('confirm_delete', False):
                     try:
                         if os.path.exists(JSON_FILE):
