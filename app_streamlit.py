@@ -302,10 +302,26 @@ departments = {
     ]
 }
 
+# RP Colleges list
+rp_colleges = [
+    "RP Huye College",
+    "RP Musanze College", 
+    "RP Kigali College",
+    "RP Karongi College",
+    "RP Kitabi College",
+    "RP Gishali College",
+    "RP NGOMA College",
+    "RP Tumba College"
+]
+
 # Initialize session state
 def init_session_state():
     if 'form_step' not in st.session_state:
         st.session_state.form_step = 0
+    if 'student_regno' not in st.session_state:
+        st.session_state.student_regno = None
+    if 'rp_college' not in st.session_state:
+        st.session_state.rp_college = None
     if 'current_board' not in st.session_state:
         st.session_state.current_board = None
     if 'year_completed' not in st.session_state:
@@ -374,6 +390,8 @@ def save_data(new_data):
 def reset_form():
     """Reset all form state"""
     st.session_state.form_step = 0
+    st.session_state.student_regno = None
+    st.session_state.rp_college = None
     st.session_state.current_board = None
     st.session_state.year_completed = None
     st.session_state.selected_combination = None
@@ -457,6 +475,8 @@ def main():
 
     # Progress indicator
     progress_steps = [
+        "Student Information",
+        "RP College",
         "Select Board",
         "Year Completed", 
         "Combination", 
@@ -479,8 +499,48 @@ def main():
         </div>
     """, unsafe_allow_html=True)
 
-    # Step 1: Board selection
+    # Step 1: Student Registration Number
     if st.session_state.form_step == 0:
+        st.subheader("Student Information")
+        
+        student_regno = st.text_input(
+            "Enter Student Registration Number:",
+            value=st.session_state.student_regno or "",
+            placeholder="e.g., 24RP12345, 25RP12345",
+            help="Enter your official RP student registration number"
+        )
+        
+        if student_regno and student_regno.strip():
+            st.session_state.student_regno = student_regno.strip()
+            if st.button("Next Step", type="primary"):
+                st.session_state.form_step = 1
+                st.rerun()
+        else:
+            st.warning("Please enter your student registration number to proceed")
+
+    # Step 2: RP College Selection
+    elif st.session_state.form_step == 1:
+        st.info(f"Student RegNo: **{st.session_state.student_regno}**")
+        
+        st.subheader("Select Your RP College")
+        
+        rp_college = st.selectbox(
+            "Choose your college:",
+            options=[None] + rp_colleges,
+            format_func=lambda x: "Select your college..." if x is None else x,
+            index=0
+        )
+        
+        if rp_college:
+            st.session_state.rp_college = rp_college
+            if st.button("Next Step", type="primary"):
+                st.session_state.form_step = 2
+                st.rerun()
+
+    # Step 3: Board selection
+    elif st.session_state.form_step == 2:
+        st.info(f"RegNo: **{st.session_state.student_regno}** | College: **{st.session_state.rp_college}**")
+        
         st.subheader("Select High School Examination Board")
         
         col1, col2 = st.columns(2)
@@ -495,7 +555,7 @@ def main():
             """, unsafe_allow_html=True)
             if st.button("Select RTB", key="rtb_btn", use_container_width=True):
                 st.session_state.current_board = "RTB"
-                st.session_state.form_step = 1
+                st.session_state.form_step = 3
                 st.rerun()
         
         with col2:
@@ -508,12 +568,12 @@ def main():
             """, unsafe_allow_html=True)
             if st.button("Select REB", key="reb_btn", use_container_width=True):
                 st.session_state.current_board = "REB"
-                st.session_state.form_step = 1
+                st.session_state.form_step = 3
                 st.rerun()
 
-    # Step 2: Year Completed
-    elif st.session_state.form_step == 1:
-        st.info(f"Selected Board: **{st.session_state.current_board}**")
+    # Step 4: Year Completed
+    elif st.session_state.form_step == 3:
+        st.info(f"RegNo: **{st.session_state.student_regno}** | College: **{st.session_state.rp_college}** | Board: **{st.session_state.current_board}**")
         
         st.subheader("Year of Completing High School")
         year_completed = st.selectbox(
@@ -526,12 +586,12 @@ def main():
         if year_completed:
             st.session_state.year_completed = year_completed
             if st.button("Next Step", type="primary"):
-                st.session_state.form_step = 2
+                st.session_state.form_step = 4
                 st.rerun()
 
-    # Step 3: Combination Selection
-    elif st.session_state.form_step == 2:
-        st.info(f"Board: **{st.session_state.current_board}** | Year Completed: **{st.session_state.year_completed}**")
+    # Step 5: Combination Selection
+    elif st.session_state.form_step == 4:
+        st.info(f"RegNo: **{st.session_state.student_regno}** | Board: **{st.session_state.current_board}** | Year Completed: **{st.session_state.year_completed}**")
         
         st.subheader("Select Combination")
         combinations = rtb_combinations if st.session_state.current_board == "RTB" else reb_combinations
@@ -617,12 +677,12 @@ def main():
             st.session_state.selected_combination = selected_combination
             
             if st.button("Next Step", type="primary"):
-                st.session_state.form_step = 3
+                st.session_state.form_step = 5
                 st.rerun()
 
-    # Step 4: Subject Marks
-    elif st.session_state.form_step == 3:
-        st.info(f"Board: **{st.session_state.current_board}** | Year: **{st.session_state.year_completed}** | Combination: **{st.session_state.selected_combination}**")
+    # Step 6: Subject Marks
+    elif st.session_state.form_step == 5:
+        st.info(f"RegNo: **{st.session_state.student_regno}** | Board: **{st.session_state.current_board}** | Year: **{st.session_state.year_completed}** | Combination: **{st.session_state.selected_combination}**")
         
         st.subheader("Enter Marks Obtained in National Examination for Each Subject (1-100)")
         combinations = rtb_combinations if st.session_state.current_board == "RTB" else reb_combinations
@@ -664,15 +724,15 @@ def main():
         
         if all_marks_entered and not invalid_marks:
             if st.button("Next Step", type="primary"):
-                st.session_state.form_step = 4
+                st.session_state.form_step = 6
                 st.rerun()
         else:
             if not all_marks_entered:
                 st.warning("Please enter marks for all subjects to proceed to the next step")
 
-    # Step 5: RP Admission Year
-    elif st.session_state.form_step == 4:
-        st.info(f"Board: **{st.session_state.current_board}** | Combination: **{st.session_state.selected_combination}** | Subjects completed ✓")
+    # Step 7: RP Admission Year
+    elif st.session_state.form_step == 6:
+        st.info(f"RegNo: **{st.session_state.student_regno}** | Board: **{st.session_state.current_board}** | Combination: **{st.session_state.selected_combination}** | Subjects completed ✓")
         
         st.subheader("Year of Admission to RP")
         rp_admission_year = st.selectbox(
@@ -685,12 +745,12 @@ def main():
         if rp_admission_year:
             st.session_state.rp_admission_year = rp_admission_year
             if st.button("Next Step", type="primary"):
-                st.session_state.form_step = 5
+                st.session_state.form_step = 7
                 st.rerun()
 
-    # Step 6: Department Selection
-    elif st.session_state.form_step == 5:
-        st.info(f"Board: **{st.session_state.current_board}** | RP Admission: **{st.session_state.rp_admission_year}**")
+    # Step 8: Department Selection
+    elif st.session_state.form_step == 7:
+        st.info(f"RegNo: **{st.session_state.student_regno}** | Board: **{st.session_state.current_board}** | RP Admission: **{st.session_state.rp_admission_year}**")
         
         st.subheader("Select Department")
         department = st.selectbox(
@@ -703,12 +763,12 @@ def main():
         if department:
             st.session_state.department = department
             if st.button("Next Step", type="primary"):
-                st.session_state.form_step = 6
+                st.session_state.form_step = 8
                 st.rerun()
 
-    # Step 7: Course Selection
-    elif st.session_state.form_step == 6:
-        st.info(f"Department: **{st.session_state.department}**")
+    # Step 9: Course Selection
+    elif st.session_state.form_step == 8:
+        st.info(f"RegNo: **{st.session_state.student_regno}** | Department: **{st.session_state.department}**")
         
         st.subheader("Select Course/Program")
         course = st.selectbox(
@@ -721,12 +781,12 @@ def main():
         if course:
             st.session_state.course = course
             if st.button("Next Step", type="primary"):
-                st.session_state.form_step = 7
+                st.session_state.form_step = 9
                 st.rerun()
 
-    # Step 8: Year of Study
-    elif st.session_state.form_step == 7:
-        st.info(f"Department: **{st.session_state.department}** | Course: **{st.session_state.course}**")
+    # Step 10: Year of Study
+    elif st.session_state.form_step == 9:
+        st.info(f"RegNo: **{st.session_state.student_regno}** | Department: **{st.session_state.department}** | Course: **{st.session_state.course}**")
         
         st.subheader("Current Year of Study")
         year_study = st.selectbox(
@@ -744,7 +804,9 @@ def main():
             
             col1, col2 = st.columns(2)
             with col1:
-                st.write("**Basic Information:**")
+                st.write("**Student Information:**")
+                st.write(f"- Registration Number: {st.session_state.student_regno}")
+                st.write(f"- RP College: {st.session_state.rp_college}")
                 st.write(f"- Board: {st.session_state.current_board}")
                 st.write(f"- Year Completed HS: {st.session_state.year_completed}")
                 st.write(f"- Combination: {st.session_state.selected_combination}")
@@ -765,6 +827,8 @@ def main():
                 form_data = {
                     "id": datetime.now().timestamp(),
                     "timestamp": datetime.now().isoformat(),
+                    "studentRegNo": st.session_state.student_regno,
+                    "rpCollege": st.session_state.rp_college,
                     "examinationBoard": st.session_state.current_board,
                     "yearCompleted": st.session_state.year_completed,
                     "rpAdmissionYear": st.session_state.rp_admission_year,
@@ -779,11 +843,11 @@ def main():
                 updated_data = save_data([form_data])
                 
                 # Move to success step
-                st.session_state.form_step = 8
+                st.session_state.form_step = 10
                 st.rerun()
 
-    # Step 9: Success and Summary
-    elif st.session_state.form_step == 8:
+    # Step 11: Success and Summary
+    elif st.session_state.form_step == 10:
         st.markdown("""
             <div style="text-align: center; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                         color: white; border-radius: 15px; margin-bottom: 30px;">
@@ -845,7 +909,7 @@ def main():
                 st.rerun()
         
         with action_col2:
-            if st.button("View All Data", use_container_width=True,disabled=True):
+            if st.button("View All Data", use_container_width=True, disabled=True):
                 # Show data table
                 st.subheader("All Recorded Data")
                 df = pd.DataFrame(existing_data)
@@ -862,7 +926,7 @@ def main():
                 st.dataframe(df_display, use_container_width=True)
 
         with action_col3:
-            if st.button("Clear All Data", use_container_width=True,disabled=True):
+            if st.button("Clear All Data", use_container_width=True, disabled=True):
                 if st.session_state.get('confirm_delete', False):
                     try:
                         if os.path.exists(JSON_FILE):
@@ -880,7 +944,7 @@ def main():
                     st.rerun()
 
     # Navigation buttons
-    if st.session_state.form_step > 0 and st.session_state.form_step < 8:
+    if st.session_state.form_step > 0 and st.session_state.form_step < 10:
         st.markdown("---")
         col1, col2, col3 = st.columns([1, 1, 2])
         
@@ -905,25 +969,25 @@ def main():
     #     # Load and display data count
     #     existing_data = load_existing_data()
         
-        # if existing_data:
-        #     st.metric("Total Students Recorded", len(existing_data))
+    #     if existing_data:
+    #         st.metric("Total Students Recorded", len(existing_data))
             
-        #     if st.button("View Existing Data", disabled=True):
-        #         df = pd.DataFrame(existing_data)
+    #         if st.button("View Existing Data", disabled=True):
+    #             df = pd.DataFrame(existing_data)
                 
-        #         # Flatten marks for display
-        #         if not df.empty and 'marks' in df.columns:
-        #             marks_df = pd.json_normalize(df['marks'])
-        #             marks_df.columns = [f'mark_{col}' for col in marks_df.columns]
-        #             df_display = df.drop('marks', axis=1).reset_index(drop=True)
-        #             df_display = pd.concat([df_display, marks_df], axis=1)
-        #         else:
-        #             df_display = df
+    #             # Flatten marks for display
+    #             if not df.empty and 'marks' in df.columns:
+    #                 marks_df = pd.json_normalize(df['marks'])
+    #                 marks_df.columns = [f'mark_{col}' for col in marks_df.columns]
+    #                 df_display = df.drop('marks', axis=1).reset_index(drop=True)
+    #                 df_display = pd.concat([df_display, marks_df], axis=1)
+    #             else:
+    #                 df_display = df
                 
-        #         st.dataframe(df_display.head(5), use_container_width=True)
-        #         st.caption("Showing first 5 records. Complete the form to access full data management.")
-        # else:
-        #     st.info("No data has been collected yet. Start by selecting an examination board above.")
+    #             st.dataframe(df_display.head(5), use_container_width=True)
+    #             st.caption("Showing first 5 records. Complete the form to access full data management.")
+    #     else:
+    #         st.info("No data has been collected yet. Start by entering your student registration number above.")
 
 if __name__ == "__main__":
     main()
