@@ -946,7 +946,7 @@ def main():
                         except Exception as e:
                             st.error(f"Error clearing data: {e}")
                 else:
-                    if st.button("Clear All Data", type="secondary", use_container_width=True, disabled=True):
+                    if st.button("Clear All Data", type="secondary", use_container_width=True, disabled=False):
                         st.session_state.confirm_delete = True
                         st.warning("Click again to confirm deletion of all data")
                         st.rerun()
