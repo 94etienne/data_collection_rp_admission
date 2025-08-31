@@ -926,7 +926,7 @@ def main():
                 st.dataframe(df_display, use_container_width=True)
 
         with action_col3:
-            if st.button("Clear All Data", use_container_width=True, disabled=True):
+            if st.button("Clear All Data", use_container_width=True, disabled=False):
                 if st.session_state.get('confirm_delete', False):
                     try:
                         if os.path.exists(JSON_FILE):
