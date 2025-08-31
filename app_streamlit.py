@@ -962,32 +962,32 @@ def main():
                     st.warning("Click 'Confirm Reset' to reset the form")
 
     # Show initial summary only if no form is in progress
-    # if st.session_state.form_step == 0:
-    #     st.markdown("---")
-    #     st.subheader("Data Collection Overview")
+    if st.session_state.form_step == 0:
+        st.markdown("---")
+        st.subheader("Data Collection Overview")
         
-    #     # Load and display data count
-    #     existing_data = load_existing_data()
+        # Load and display data count
+        existing_data = load_existing_data()
         
-    #     if existing_data:
-    #         st.metric("Total Students Recorded", len(existing_data))
+        if existing_data:
+            st.metric("Total Students Recorded", len(existing_data))
             
-    #         if st.button("View Existing Data", disabled=True):
-    #             df = pd.DataFrame(existing_data)
+            if st.button("View Existing Data", disabled=True):
+                df = pd.DataFrame(existing_data)
                 
-    #             # Flatten marks for display
-    #             if not df.empty and 'marks' in df.columns:
-    #                 marks_df = pd.json_normalize(df['marks'])
-    #                 marks_df.columns = [f'mark_{col}' for col in marks_df.columns]
-    #                 df_display = df.drop('marks', axis=1).reset_index(drop=True)
-    #                 df_display = pd.concat([df_display, marks_df], axis=1)
-    #             else:
-    #                 df_display = df
+                # Flatten marks for display
+                if not df.empty and 'marks' in df.columns:
+                    marks_df = pd.json_normalize(df['marks'])
+                    marks_df.columns = [f'mark_{col}' for col in marks_df.columns]
+                    df_display = df.drop('marks', axis=1).reset_index(drop=True)
+                    df_display = pd.concat([df_display, marks_df], axis=1)
+                else:
+                    df_display = df
                 
-    #             st.dataframe(df_display.head(5), use_container_width=True)
-    #             st.caption("Showing first 5 records. Complete the form to access full data management.")
-    #     else:
-    #         st.info("No data has been collected yet. Start by entering your student registration number above.")
+                st.dataframe(df_display.head(5), use_container_width=True)
+                st.caption("Showing first 5 records. Complete the form to access full data management.")
+        else:
+            st.info("No data has been collected yet. Start by entering your student registration number above.")
 
 if __name__ == "__main__":
     main()
