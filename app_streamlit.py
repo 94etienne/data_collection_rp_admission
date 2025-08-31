@@ -770,11 +770,11 @@ def main():
     elif st.session_state.form_step == 8:
         st.info(f"RegNo: **{st.session_state.student_regno}** | Department: **{st.session_state.department}**")
         
-        st.subheader("Select Course/Program")
+        st.subheader("Select Option/Program")
         course = st.selectbox(
-            "Choose a course:",
+            "Choose a option/program:",
             options=[None] + departments[st.session_state.department],
-            format_func=lambda x: "Choose a course..." if x is None else x,
+            format_func=lambda x: "Choose a option/program..." if x is None else x,
             index=0
         )
         
