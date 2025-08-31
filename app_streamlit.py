@@ -926,7 +926,7 @@ def main():
                         file_name=f"rp_student_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                         mime="text/csv",
                         use_container_width=True,
-                        disabled=True
+                        disabled=False
                     )
                 else:
                     st.button("Download CSV", disabled=True, use_container_width=True)
