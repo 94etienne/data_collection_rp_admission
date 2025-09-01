@@ -926,7 +926,7 @@ def main():
                         file_name=f"rp_student_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                         mime="text/csv",
                         use_container_width=True,
-                        disabled=False
+                        disabled=True
                     )
                 else:
                     st.button("Download CSV", disabled=True, use_container_width=True)
@@ -946,7 +946,7 @@ def main():
                         except Exception as e:
                             st.error(f"Error clearing data: {e}")
                 else:
-                    if st.button("Clear All Data", type="secondary", use_container_width=True, disabled=False):
+                    if st.button("Clear All Data", type="secondary", use_container_width=True, disabled=True):
                         st.session_state.confirm_delete = True
                         st.warning("Click again to confirm deletion of all data")
                         st.rerun()
